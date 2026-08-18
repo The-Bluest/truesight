@@ -1,0 +1,39 @@
+{
+  "manifest_version": 3,
+  "name": "TrueSight",
+  "version": "1.0",
+
+  "description": "Assignment for 3027ICT",
+
+  "icons": {
+    "64": "icons/eye.svg"
+  },
+
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "s520128@griffith.edu.au",
+      "data_collection_permissions": {
+        "required": ["none"]
+      }
+    }
+  },
+
+  "content_scripts": [
+    {
+      "matches": [
+	"*://*.reddit.com/*",
+	"*://*.x.com/*",
+	"https://www.facebook.com/*",
+	"https://facebook.com/*",
+    "https://www.reddit.com/*"	],
+      "js": [
+        "check.js",
+        "sites/x.js",
+        "sites/facebook.js",
+        "sites/reddit.js",
+        "truesight.js"],
+      "css": ["styles.css"],
+      "run_at": "document_idle"
+    }
+  ]
+}
