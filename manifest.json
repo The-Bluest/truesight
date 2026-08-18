@@ -11,10 +11,7 @@
 
   "browser_specific_settings": {
     "gecko": {
-      "id": "s520128@griffith.edu.au",
-      "data_collection_permissions": {
-        "required": ["none"]
-      }
+      "id": "s520128@griffith.edu.au"
     }
   },
 
@@ -25,13 +22,9 @@
 	"*://*.x.com/*",
 	"https://www.facebook.com/*",
 	"https://facebook.com/*",
-    "https://www.reddit.com/*"	],
-      "js": [
-        "check.js",
-        "sites/x.js",
-        "sites/facebook.js",
-        "sites/reddit.js",
-        "truesight.js"],
+    	"https://www.reddit.com/*"	
+	],
+      "js": ["truesight.js"],
       "css": ["styles.css"],
       "run_at": "document_idle"
     }
