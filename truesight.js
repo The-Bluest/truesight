@@ -1,3 +1,5 @@
+console.log("Hello");
+
 document.body.style.border = "10px solid blue";
 
 // List the usernames you want to highlight
