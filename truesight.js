@@ -4,15 +4,7 @@ document.body.style.border = "10px solid blue";
 
 // List the usernames you want to highlight
 const targetUsers = [
-    "elonmusk",
-    "OpenAI",
-    "jack",
-    "sama",
-    "SamAltman",
-    "Grok",
-    "Jeff",
-    "Jeff Bezos"
-    "AI"
+    "elonmusk"
 ];
 
 function processTweets() {
