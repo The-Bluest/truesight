@@ -9,6 +9,36 @@ function saveFlags() {
 	localStorage.setItem('flaggedUsers', JSON.stringify(flaggedUsers));
 }
 
+// Moderation review/warning once user report hits 100 (change to threshold)
+const threshold = 100;
+
+// Moderator review warning is added/removed inside flagged user box
+function updateWarning(container, user) {
+	
+	let warning = container.querySelector(".mod-warning");
+
+	if (user.count >= threshold) {
+
+		if (!warning) {
+
+			warning = document.createElement("div");
+
+			warning.className = "mod-warning"; 
+
+			warning.innerHTML = `<strong>This user is undergoing moderation review.</strong>`;
+
+			const buttonAgree = container.querySelector(".agree-flag");
+
+			container.insertBefore(warning, buttonAgree);
+		}
+	}
+	
+	else if (warning) {
+
+		warning.remove();
+	}
+}
+
 // Removed from processTweets function to allow us to use it in different areas
 function getUsername(article) {
 
@@ -153,6 +183,9 @@ function flaggedForm(article, username) {
 
 	article.appendChild(container);
 
+	// Show moderator warning immediately if qualified
+	updateWarning(container, user);
+
     	// Agree button
     	container.querySelector(".agree-flag").addEventListener("click", () => {
 
@@ -161,6 +194,8 @@ function flaggedForm(article, username) {
             	saveFlags();
 
             	container.querySelector(".flagged-user-count").textContent = `Flags: ${user.count}`;
+
+				updateWarning(container, user);
 
         });
 
@@ -192,6 +227,8 @@ function flaggedForm(article, username) {
             saveFlags();
 
             container.querySelector(".flagged-user-count").textContent = `Flags: ${user.count}`;
+
+			updateWarning(container, user);
 
         });
 }
