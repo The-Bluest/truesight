@@ -79,12 +79,24 @@
     margin: 10px;
     padding: 10px;
 
-    background: #fff3f3;
+    width: fit-content;
+    height: fit-content;
+
+    background: white;
 
     border: 1px solid #ff4444;
     border-radius: 8px;
 
     color: red;
+}
+
+.flagged-user-form button {
+    display: block;
+    background: white;
+    font-weight: bold;
+    width: 100%;
+    margin-top: 6px;
+    border-radius: 8px;
 }
 
 .flagged-user-header {
@@ -113,4 +125,12 @@
 
     border: 1px solid #ff4444; 
     border-radius: 6px;
+}
+
+.save-flag {
+    cursor: pointer;
+}
+
+.cancel-flag {
+    cursor: pointer;
 }
