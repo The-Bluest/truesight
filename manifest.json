@@ -18,11 +18,9 @@
   "content_scripts": [
     {
       "matches": [
-	"*://*.reddit.com/*",
 	"*://*.x.com/*",
-	"https://www.facebook.com/*",
-	"https://facebook.com/*",
-    	"https://www.reddit.com/*"	
+	"*://*.mozilla.org/*"
+
 	],
       "js": ["truesight.js"],
       "css": ["styles.css"],
