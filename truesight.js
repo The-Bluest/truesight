@@ -11,7 +11,37 @@ function savePosts() {
 
 // Moderation review/warning once user report hits 100 (change to threshold)
 const threshold = 100;
-const postThreshold = 5;
+// Post threshold controlled by the menu
+let postThreshold = 25;
+
+// Load the saved threshold from storage accessed also in menu.js
+browser.storage.local.get("postThreshold").then((result) => {
+    postThreshold = Number(result.postThreshold ?? 25);
+
+    console.log("Post threshold:", postThreshold);
+
+    // Process posts after the setting has loaded
+    processTweets();
+});
+
+
+// Listen for changes made by the Firefox popup/menu
+browser.storage.onChanged.addListener((changes, areaName) => {
+
+    if (areaName !== "local") {
+        return;
+    }
+
+    if (changes.postThreshold) {
+
+        postThreshold = Number(changes.postThreshold.newValue ?? 50);
+
+        console.log("Post threshold changed to:", postThreshold);
+
+        // Re-check all posts immediately
+        processTweets();
+    }
+});
 
 // Moderator review warning is added/removed inside flagged user box
 function updateWarning(container, user) {
@@ -286,28 +316,42 @@ function processTweets() {
     articles.forEach(article => {
 
         const username = getUsername(article);
+        const post = getPosts(article);
 
-		const post = getPosts(article);
+        if (!username || !post) {
+            return;
+        }
 
-        if (!username || !post) return;
 
-		if (postFlagged(post)){
+        // Already individually flagged post
+        if (postFlagged(post)) {
 
-			article.classList.add("highlighted-user");
+            article.classList.add("highlighted-user");
 
-			flaggedForm(article, username, post);
+            flaggedForm(article, username, post);
 
-		} else if (postFlaggedCounter(username)) {
+            return;
+        }
 
-			article.classList.add("highlighted-user");
 
-			//Allows flagging of more posts from the same user even if threshold is reached
-			addFlagForm(article, username, post);
+        // Check user's total flagged post count
+        const reachedThreshold = postFlaggedCounter(username);
 
-		} else {
 
-			addFlagForm(article, username, post);
-		}
+        if (reachedThreshold) {
+
+            // User has reached the threshold
+            article.classList.add("highlighted-user");
+
+            addFlagForm(article, username, post);
+
+        } else {
+
+            // User has NOT reached the threshol remove highlighting if it was previously added.
+            article.classList.remove("highlighted-user");
+
+            addFlagForm(article, username, post);
+        }
     });
 }
 

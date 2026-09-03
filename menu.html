@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Extension Settings
+    </title>
+    <style>
+        body {
+            width: 250px;
+            padding: 15px;
+            font-family: Arial, sans-serif;
+        }
+        h3 {
+            margin-top: 0;
+        }
+        .value {
+            font-weight: bold;
+            margin-left: 5px;
+        }
+
+        input[type="range"] {
+            width: 100%;
+        }
+    </style>
+</head>
+
+<body>
+    <script src="menu.js"></script>
+
+    <h3>Post Quota </h3>
+    
+    <label>
+        Threshold: <span id="thresholdValue">0</span>
+    </label>
+
+    <input
+        type="range"
+        id="Threshold"
+        min="1"
+        max="50"
+        value="1"
+        step="1"
+    >
+
+
+</body>
+</html>
