@@ -9,39 +9,58 @@ function savePosts() {
 	localStorage.setItem('flaggedPosts', JSON.stringify(flaggedPosts));
 }
 
-// Moderation review/warning once user report hits 100 (change to threshold)
+
+// Moderation review/warning once user report hits 100
 const threshold = 100;
+
 // Post threshold controlled by the menu
-let postThreshold = 25;
+let postThreshold = 1;
 
-// Load the saved threshold from storage accessed also in menu.js
+
+// Load the saved threshold from fiefox storage
 browser.storage.local.get("postThreshold").then((result) => {
-    postThreshold = Number(result.postThreshold ?? 25);
 
-    console.log("Post threshold:", postThreshold);
+    postThreshold = Number(result.postThreshold ?? 1);
+    console.log("TrueSight: Loaded postThreshold =", postThreshold);
 
     // Process posts after the setting has loaded
     processTweets();
+
+}).catch((error) => {
+
+    console.error(
+        "TrueSight: Failed to load postThreshold:",
+        error
+    );
+
 });
 
 
-// Listen for changes made by the Firefox popup/menu
+// Listen for changes made by menu.js should fix restart requirement 
 browser.storage.onChanged.addListener((changes, areaName) => {
 
     if (areaName !== "local") {
         return;
     }
 
-    if (changes.postThreshold) {
-
-        postThreshold = Number(changes.postThreshold.newValue ?? 50);
-
-        console.log("Post threshold changed to:", postThreshold);
-
-        // Re-check all posts immediately
-        processTweets();
+    if (!changes.postThreshold) {
+        return;
     }
+
+    postThreshold = Number(
+        changes.postThreshold.newValue ?? 1
+    );
+
+    console.log(
+        "TrueSight: postThreshold changed to",
+        postThreshold
+    );
+
+    // Immediately re-check feed
+    processTweets();
 });
+
+
 
 // Moderator review warning is added/removed inside flagged user box
 function updateWarning(container, user) {
@@ -111,11 +130,23 @@ function getPosts(article) {
 	return null;
 }
 
-function postFlaggedCounter(username) {
-	const flaggedPostsCount = flaggedPosts.filter(flag => flag.username === username).length;
 
-	return flaggedPostsCount >= postThreshold;
+function postFlaggedCounter(username) {
+
+    const flaggedPostsCount = flaggedPosts
+        .filter(flag => flag.username === username)
+        .reduce((total, flag) => {
+            return total + flag.count;
+        }, 0);
+
+    console.log(
+        `TrueSight: @${username} has ${flaggedPostsCount} flags. Threshold: ${postThreshold}`
+    );
+
+    return flaggedPostsCount >= postThreshold;
 }
+
+
 
 // Flag form that allows the flagging of users and adds to array
 function addFlagForm(article, username, post) {

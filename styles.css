@@ -134,3 +134,44 @@
 .cancel-flag {
     cursor: pointer;
 }
+
+body {
+    width: 250px;
+    padding: 15px;
+    font-family: Arial, sans-serif;
+    background-color: grey;
+}
+
+h2 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    font-size: 18px;
+}
+
+label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+}
+
+.slider-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+#Threshold {
+    flex: 1;
+}
+
+#thresholdValue {
+    min-width: 30px;
+    text-align: center;
+    font-weight: bold;
+}
+
+.description {
+    margin-top: 10px;
+    font-size: 12px;
+    line-height: 1.4;
+}
