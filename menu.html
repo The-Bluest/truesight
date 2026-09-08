@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>TrueSight
+    </title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        
+    </style>
+</head>
+
+<body>
+
+    <h2>TrueSight</h2>
+
+    <label for="Threshold">
+        Post Flag Threshold
+    </label>
+
+    <div class="slider-container">
+
+        <input
+            type="range"
+            id="Threshold"
+            min="1"
+            max="100"
+            value="1"
+            step="1"
+        >
+
+        <span id="thresholdValue">1</span>
+
+    </div>
+
+    <div class="description">
+        Highlight users once their posts reach this number of flags.
+    </div>
+
+    <script src="menu.js"></script>
+
+</body>
+</html>
+

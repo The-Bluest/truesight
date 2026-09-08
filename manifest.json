@@ -9,10 +9,19 @@
     "64": "icons/eye.svg"
   },
 
+  "permissions": [
+      "storage"
+  ],
+
   "browser_specific_settings": {
     "gecko": {
       "id": "s520128@griffith.edu.au"
     }
+  },
+
+  "action": {
+    "default_title": "TrueSight <0>",
+    "default_popup": "menu.html"
   },
 
   "content_scripts": [
@@ -22,7 +31,8 @@
 	"*://*.mozilla.org/*"
 
 	],
-      "js": ["truesight.js"],
+      "js": ["truesight.js",
+    "menu.js"],
       "css": ["styles.css"],
       "run_at": "document_idle"
     }
