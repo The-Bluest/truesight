@@ -14,7 +14,7 @@ function savePosts() {
 const threshold = 100;
 
 // Post threshold controlled by the menu
-let postThreshold = 1;
+let postThreshold = 5;
 
 
 // Load the saved threshold from fiefox storage
@@ -212,6 +212,8 @@ function addFlagForm(article, username, post) {
 
         	const existingFlag = flaggedPosts.find(flag => flag.post === post);
 
+			form.classList.toggle("open");
+
         	if (existingFlag) {
 
             		existingFlag.count++; // If flag already exists it only increments the count
@@ -223,8 +225,7 @@ function addFlagForm(article, username, post) {
 					username: username,
                 	count: 1
             	});
-
-        }
+        	}
 
         savePosts();
 
