@@ -1,29 +1,52 @@
+
 const slider = document.getElementById("Threshold");
 const valueDisplay = document.getElementById("thresholdValue");
 
-const DEFAULT = 1;
-// we go, thresholdValue > Threshold > postThreshold (Theshold is a wierd word)
+const DEFAULT_THRESHOLD = 1;
 
-// Load saved value
-browser.storage.local.get("postThreshold").then((result) => {
+// Make sure the HTML elements actually exist
+if (!slider || !valueDisplay) {
+    console.error("TrueSight: Could not find Threshold or thresholdValue element.");
+} else {
 
-    const threshold = Number(
-        result.postThreshold ?? DEFAULT
-    );
+    // Load saved threshold
+    browser.storage.local.get("postThreshold").then((result) => {
 
-    slider.value = threshold;
-    valueDisplay.textContent = threshold;
-});
+        const threshold = Number(
+            result.postThreshold ?? DEFAULT_THRESHOLD
+        );
 
+        slider.value = threshold;
+        valueDisplay.textContent = threshold;
 
-// Save whenever slider moves
-slider.addEventListener("input", () => {
-
-    const threshold = Number(slider.value);
-
-    valueDisplay.textContent = threshold;
-
-    browser.storage.local.set({
-        postThreshold: threshold
+        console.log("TrueSight menu: Loaded threshold =", threshold);
     });
-});
+
+
+    // Save whenever slider moves
+    slider.addEventListener("input", () => {
+
+        const threshold = Number(slider.value);
+
+        valueDisplay.textContent = threshold;
+
+        browser.storage.local.set({
+            postThreshold: threshold
+        }).then(() => {
+
+            console.log(
+                "TrueSight menu: Saved postThreshold =",
+                threshold
+            );
+
+        }).catch((error) => {
+
+            console.error(
+                "TrueSight menu: Failed to save threshold:",
+                error
+            );
+
+        });
+    });
+}
+
