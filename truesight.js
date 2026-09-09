@@ -154,7 +154,6 @@ function postFlaggedCounter(username) {
 }
 
 
-
 // Flag form that allows the flagging of users and adds to array
 function addFlagForm(article, username, post) {
 	// Prevents flag being added multiple times
@@ -367,6 +366,8 @@ function processTweets() {
 
             article.classList.add("highlighted-user");
 
+			highlightUsername(article, username, true);
+
             flaggedForm(article, username, post);
 
             return;
@@ -382,6 +383,8 @@ function processTweets() {
             // User has reached the threshold
             article.classList.add("highlighted-user");
 
+			highlightUsername(article, username, true);
+
             addFlagForm(article, username, post);
 
         } else {
@@ -389,9 +392,23 @@ function processTweets() {
             // User has NOT reached the threshol remove highlighting if it was previously added.
             article.classList.remove("highlighted-user");
 
+			highlightUsername(article, username, false);
+
             addFlagForm(article, username, post);
         }
     });
+}
+
+function highlightUsername(article, username, highlight) {
+	const links = article.querySelectorAll('a[href^="/"]');
+
+	links.forEach(link => {
+		const href = link.getAttribute("href");
+
+		if (href === `/${username}`) {
+			link.classList.toggle("highlighted-username", highlight);
+		}
+	});
 }
 
 // Initial scan

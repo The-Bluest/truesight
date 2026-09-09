@@ -2,12 +2,12 @@
     border-left: 5px solid gold !important;
     padding-left: 10px !important;
     border-radius: 6px;
-    color: #ff0000 !important;
-    font-weight: bold;
+
 }
 
-.highlighted-user * {
-    color: inherit !important;
+.highlighted-username {
+    color: #ff0000 !important;
+    font-weight: bold;
 }
 
 .user-flag-container {
