@@ -67,7 +67,9 @@ function updateWarning(container, user) {
 	
 	let warning = container.querySelector(".mod-warning");
 
-	if (user.count >= threshold) {
+	const totalFlags = getTotalFlags(user.username);
+
+	if (totalFlags >= threshold) {
 
 		if (!warning) {
 
@@ -130,6 +132,11 @@ function getPosts(article) {
 	return null;
 }
 
+function getTotalFlags(username) {
+	return flaggedPosts
+		.filter(flag => flag.username === username)
+		.reduuce((total, flag) => total + flag.count, 0);
+}
 
 function postFlaggedCounter(username) {
 
