@@ -282,6 +282,8 @@ function flaggedForm(article, username, post) {
 
         <div class="flagged-user-count">Flags: ${flaggedPost.count}</div>
 
+		<div class="flagged-user-total">Total Flags: ${getTotalFlags(flaggedPost.username)}</div>
+
         <button class="agree-flag">Agree</button>
 
         <button class="disagree-flag">Disagree</button>
@@ -300,6 +302,8 @@ function flaggedForm(article, username, post) {
             	savePosts();
 
             	container.querySelector(".flagged-user-count").textContent = `Flags: ${flaggedPost.count}`;
+
+				container.querySelector(".flagged-user-total").textContent = `Total Flags: ${getTotalFlags(flaggedPost.username)}`;
 
 				updateWarning(container, flaggedPost);
 
@@ -335,6 +339,8 @@ function flaggedForm(article, username, post) {
             savePosts();
 
             container.querySelector(".flagged-user-count").textContent = `Flags: ${flaggedPost.count}`;
+
+			container.querySelector(".flagged-user-total").textContent = `Total Flags: ${getTotalFlags(flaggedPost.username)}`;
 
 			updateWarning(container, flaggedPost);
 

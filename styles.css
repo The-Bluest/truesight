@@ -109,6 +109,11 @@
     margin-bottom: 8px;
 }
 
+.flagged-user-total {
+    margin-bottom:8px;
+    font-size: 13px;
+}
+
 .remove-flag {
     margin-top: 10px;
 }
