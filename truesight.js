@@ -135,7 +135,7 @@ function getPosts(article) {
 function getTotalFlags(username) {
 	return flaggedPosts
 		.filter(flag => flag.username === username)
-		.reduuce((total, flag) => total + flag.count, 0);
+		.reduce((total, flag) => total + flag.count, 0);
 }
 
 function postFlaggedCounter(username) {
