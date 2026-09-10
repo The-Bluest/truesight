@@ -12,14 +12,25 @@
 
 <body>
 
-    <h2>TrueSight</h2>
+    <h2 class = "title">TrueSight</h2>
 
-    <label for="Threshold">
-        Post Flag Threshold
-    </label>
+    <!-- User Info    -->
+    <div class = "user-info">
+        <img id="profileImage" src="./icons/bronze.png" alt="Profile Rank" class="rank">
+        <div class="username">Username</div>
+    </div>
 
-    <div class="slider-container">
+    <!-- Child Mode -->
+     <div class="settings child-mode">
+        <label for="childMode">Child Mode</label>
+        <input type="checkbox" id="childMode">
+    </div>
 
+    <!-- Post Flag Threshold -->
+     <div class="settings post-flag-threshold">
+        <label for="Threshold">
+            Post Flag Threshold
+        </label>
         <input
             type="range"
             id="Threshold"
@@ -28,9 +39,7 @@
             value="1"
             step="1"
         >
-
         <span id="thresholdValue">1</span>
-
     </div>
 
     <div class="description">

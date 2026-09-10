@@ -5,10 +5,56 @@ document.body.style.border = "10px solid blue";
 // To clear users in console while on X use command localStorage.removeItems("flaggedPosts");
 let flaggedPosts = JSON.parse(localStorage.getItem("flaggedPosts") || "[]");
 
+let flagCount = 0;
+browser.storage.local.get("flagCount").then((result) => {
+	flagCount = Number(result.flagCount ?? 0);
+	console.log("TrueSight: Loaded flagCount =", flagCount);
+});
+
 function savePosts() {
 	localStorage.setItem('flaggedPosts', JSON.stringify(flaggedPosts));
 }
 
+// Child mode setting
+let childMode = false;
+
+// Load saved child mode
+browser.storage.local.get("childMode").then((result) => {
+    childMode = result.childMode ?? false;
+
+    console.log("TrueSight: Loaded childMode =", childMode);
+
+    // Process tweets after the setting has loaded
+    processTweets();
+
+}).catch((error) => {
+    console.error("TrueSight: Failed to load childMode:", error);
+
+    // Still process tweets using the default value
+    processTweets();
+});
+
+
+// Listen for child mode changes from the menu
+browser.storage.onChanged.addListener((changes, areaName) => {
+
+    if (areaName !== "local") {
+        return;
+    }
+
+    if (!changes.childMode) {
+        return;
+    }
+
+    childMode = changes.childMode.newValue ?? false;
+
+    console.log(
+        "TrueSight: childMode changed to",
+        childMode
+    );
+
+    processTweets();
+});
 
 // Moderation review/warning once user report hits 100
 const threshold = 100;
@@ -56,7 +102,6 @@ browser.storage.onChanged.addListener((changes, areaName) => {
         postThreshold
     );
 
-    // Immediately re-check feed
     processTweets();
 });
 
@@ -81,7 +126,12 @@ function updateWarning(container, user) {
 
 			const buttonAgree = container.querySelector(".agree-flag");
 
-			container.insertBefore(warning, buttonAgree);
+			if (buttonAgree) {
+    			container.insertBefore(warning, buttonAgree);
+			} else {
+    			container.appendChild(warning);
+			}
+
 		}
 	}
 	
@@ -125,7 +175,6 @@ function getPosts(article) {
 			const match = href.match(/^\/[^\/]+\/[^\/]+\/([^\/]+)$/);
 
 			if (match) {
-				console.log("Post ID:", match[1]);
 				return match[1];
 			}
 		}
@@ -152,7 +201,6 @@ function postFlaggedCounter(username) {
 
     return flaggedPostsCount >= postThreshold;
 }
-
 
 // Flag form that allows the flagging of users and adds to array
 function addFlagForm(article, username, post) {
@@ -182,12 +230,22 @@ function addFlagForm(article, username, post) {
 	form.innerHTML = `
         	<strong>Flag @${username}</strong>
 
+			<select class="reason-select">
+        		<option value="1">1 - AI Images</option>
+        		<option value="2">2 - AI Text</option>
+        		<option value="3">3 - Other</option>
+    		</select>
+
         	<button class="save-flag">Flag Post</button>
 
         	<button class="cancel-flag">Close</button>
 
         	<div class="flag-status"></div>
-    	`;
+    `;
+
+	form.addEventListener("click", (event) => {
+    	event.stopPropagation();
+	});
 
 	container.appendChild(flagButton);
 	container.appendChild(form);
@@ -218,22 +276,33 @@ function addFlagForm(article, username, post) {
 
         	const existingFlag = flaggedPosts.find(flag => flag.post === post);
 
-			form.classList.toggle("open");
+			const reason = form.querySelector(".reason-select").value;
+
+			form.classList.remove("open");
 
         	if (existingFlag) {
 
             		existingFlag.count++; // If flag already exists it only increments the count
+
+					existingFlag.reason = reason; // Update reason if changed
 
         	} else {
 
             		flaggedPosts.push({ // New flag sets count to one
                 	post: post,
 					username: username,
+					reason: reason,
                 	count: 1
             	});
         	}
 
         savePosts();
+		flagCount++; // Increment the total flag count
+
+		browser.storage.local.set({ flagCount: flagCount });
+
+		console.log("TrueSight: Flag count =", flagCount);
+		console.log("Flagged posts:", flaggedPosts);
 
         console.log("Flagged posts:", flaggedPosts);
 
@@ -256,10 +325,17 @@ let sensitivity = 0; //Default sensitivity level is 0
 
 // Form for users who are already flagged to warn, agree and disagree
 function flaggedForm(article, username, post) {
+
+		const reasonNames = {
+			"1": "AI Images",
+			"2": "AI Text",
+			"3": "Other"
+		};
+
 		// Prevents flag being added multiple times
-    	if (article.dataset.flaggedFormAdded === "true") {
-        	return;
-    	}
+    	if (article.querySelector(".flagged-user-form")) {
+    		return;
+		}
 
     	article.dataset.flaggedFormAdded = "true";
 
@@ -271,29 +347,71 @@ function flaggedForm(article, username, post) {
 
     	container.className = "flagged-user-form";
 
-		if (sensitivity === 1) {
+		if (childMode) {
 			container.style.position = "absolute";
+			container.style.top = "0";
+			container.style.left = "0";
+			container.style.width = "100%";
+			container.style.height = "100%";
+			container.style.zIndex = "9999";
+			container.style.padding = "0";
+			container.style.margin = "0";
+
+			// Cover and block interaction with the post
+			container.style.backgroundColor = "white";
+			container.style.pointerEvents = "auto";
+
+			// Hide moderation controls
+			container.querySelector(".agree-flag")?.remove();
+			container.querySelector(".disagree-flag")?.remove();
+			container.querySelector(".close-flagged-form")?.remove();
 		}
 
-    	container.innerHTML = `
-        <div class="flagged-user-header">Flagged Post</div>
+		container.innerHTML = `
+			<div class="flagged-user-header">Flagged Post</div>
 
-        <div class="flagged-user-info"><strong>@${flaggedPost.username}</strong></div>
+			<div class="flagged-user-info">
+				<strong>@${flaggedPost.username}</strong>
+			</div>
 
-        <div class="flagged-user-count">Flags: ${flaggedPost.count}</div>
+			<div class="flagged-user-count">
+				Flags: ${flaggedPost.count}
+			</div>
 
-		<div class="flagged-user-total">Total Flags: ${getTotalFlags(flaggedPost.username)}</div>
+			<div class="flagged-user-total">
+				Total Flags: ${getTotalFlags(flaggedPost.username)}
+			</div>
 
-        <button class="agree-flag">Agree</button>
+			<div class="flagged-user-info">
+				Reason: ${reasonNames[flaggedPost.reason]}
+			</div>
 
-        <button class="disagree-flag">Disagree</button>
-    	`;
+			<button class="agree-flag">Agree</button>
+
+			<button class="disagree-flag">Disagree</button>
+
+			<button class="close-flagged-form">Close</button>
+		`;
 
 	article.appendChild(container);
 
+	// Disable/hide moderation buttons in child mode
+    if (childMode) {
+        const agreeButton = container.querySelector(".agree-flag");
+        const disagreeButton = container.querySelector(".disagree-flag");
+        const closeButton = container.querySelector(".close-flagged-form");
+
+        [agreeButton, disagreeButton, closeButton].forEach(button => {
+            if (button) {
+                button.disabled = true;
+                button.style.display = "none";
+            }
+        });
+    }
+
 	// Show moderator warning immediately if qualified
 	updateWarning(container, flaggedPost);
-
+	
     	// Agree button
     	container.querySelector(".agree-flag").addEventListener("click", () => {
 
@@ -330,8 +448,6 @@ function flaggedForm(article, username, post) {
 
                 console.log(`@${username} removed from flagged posts`);
 
-				processTweets();
-
                 return;
             }
 
@@ -345,6 +461,11 @@ function flaggedForm(article, username, post) {
 			updateWarning(container, flaggedPost);
 
         });
+		
+		//Close Flagged Form
+		container.querySelector(".close-flagged-form").addEventListener("click", () => {
+			container.remove();
+		});
 }
 
 function postFlagged(post) {
@@ -418,16 +539,16 @@ function highlightUsername(article, username, highlight) {
 }
 
 // Initial scan
-processTweets();
+//processTweets();
 
 // Watch for new tweets appearing while scrolling
 const observer = new MutationObserver(() => {
 
-    processTweets();
+	processTweets();
 
 });
 
 observer.observe(document.body, {
-    childList: true,
-    subtree: true
+	childList: true,
+	subtree: true
 });

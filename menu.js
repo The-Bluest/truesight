@@ -4,6 +4,87 @@ const valueDisplay = document.getElementById("thresholdValue");
 
 const DEFAULT_THRESHOLD = 1;
 
+function updateProfileImage(flagCount) {
+
+    const profileImage = document.getElementById("profileImage");
+
+    if (!profileImage) {
+        return;
+    }
+
+    if (flagCount >= 10) {
+        profileImage.src = "./icons/gold.png";
+    } else if (flagCount >= 5) {
+        profileImage.src = "./icons/silver.png";
+    } else {
+        profileImage.src = "./icons/bronze.png";
+    }
+}
+
+// Load flag count when menu opens
+browser.storage.local.get("flagCount").then((result) => {
+
+    const flagCount = Number(result.flagCount ?? 0);
+
+    console.log(
+        "TrueSight menu: Loaded flagCount =",
+        flagCount
+    );
+
+    updateProfileImage(flagCount);
+
+}).catch((error) => {
+
+    console.error(
+        "TrueSight: Failed to load flagCount:",
+        error
+    );
+
+});
+
+
+// Update image if flagCount changes while menu is open
+browser.storage.onChanged.addListener((changes, areaName) => {
+
+    if (areaName !== "local") {
+        return;
+    }
+
+    if (!changes.flagCount) {
+        return;
+    }
+
+    const newFlagCount = Number(
+        changes.flagCount.newValue ?? 0
+    );
+
+    console.log(
+        "TrueSight menu: flagCount changed to",
+        newFlagCount
+    );
+
+    updateProfileImage(newFlagCount);
+});
+
+const childMode = document.getElementById("childMode");
+
+if (childMode) {
+    browser.storage.local.get("childMode").then((result) => {
+        childMode.checked = result.childMode ?? false;
+
+        console.log(
+            "TrueSight menu: Loaded childMode =",
+            childMode.checked
+        );
+    });
+
+    childMode.addEventListener("change", () => {
+        browser.storage.local.set({
+            childMode: childMode.checked
+        });
+    });
+}
+
 // Make sure the HTML elements actually exist
 if (!slider || !valueDisplay) {
     console.error("TrueSight: Could not find Threshold or thresholdValue element.");
