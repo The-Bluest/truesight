@@ -210,6 +210,7 @@ function addFlagForm(article, username, post) {
 	}
 
 	article.dataset.flagAdded = "true";
+
 	// CSS applied
 	const container = document.createElement("div");
 	container.className = "user-flag-container";
@@ -231,9 +232,11 @@ function addFlagForm(article, username, post) {
         	<strong>Flag @${username}</strong>
 
 			<select class="reason-select">
+				<option value="" disabled selected hidden>Select reason...</option>
         		<option value="1">1 - AI Images</option>
         		<option value="2">2 - AI Text</option>
         		<option value="3">3 - Other</option>
+				<option value="4">4 - N/A</option>
     		</select>
 
         	<button class="save-flag">Flag Post</button>
@@ -277,6 +280,15 @@ function addFlagForm(article, username, post) {
         	const existingFlag = flaggedPosts.find(flag => flag.post === post);
 
 			const reason = form.querySelector(".reason-select").value;
+
+			if (reason === "") {
+
+				const status = form.querySelector(".flag-status");
+
+				status.textContent = "Please select a rason.";
+
+				return;
+			}
 
 			form.classList.remove("open");
 
@@ -325,15 +337,17 @@ let sensitivity = 0; //Default sensitivity level is 0
 
 // Form for users who are already flagged to warn, agree and disagree
 function flaggedForm(article, username, post) {
+		console.log("flaggedForm() CALLED");
 
 		const reasonNames = {
 			"1": "AI Images",
 			"2": "AI Text",
-			"3": "Other"
+			"3": "Other",
+			"4": "N/A"
 		};
 
 		// Prevents flag being added multiple times
-    	if (article.querySelector(".flagged-user-form")) {
+    	if (article.dataset.flaggedFormAdded === "true") {
     		return;
 		}
 
@@ -462,9 +476,20 @@ function flaggedForm(article, username, post) {
 
         });
 		
-		//Close Flagged Form
-		container.querySelector(".close-flagged-form").addEventListener("click", () => {
+		// Close Flagged Form
+		const closeButton = container.querySelector(".close-flagged-form");
+
+		closeButton.addEventListener("click", (event) => {
+			console.log("CLOSE BUTTON CLICKED");
+			console.log("container:", container);
+			console.log("container parent:", container.parentElement);
+
+			event.preventDefault();
+			event.stopPropagation();
+
 			container.remove();
+
+			console.log("container after remove:", container.parentElement);
 		});
 }
 
@@ -472,6 +497,41 @@ function postFlagged(post) {
 
 	return flaggedPosts.some(flag => flag.post === post);
 
+}
+
+function blockAllPosts(article) {
+	// Don't create multiple overlays
+    if (article.querySelector(".child-mode-block")) {
+        return;
+    }
+
+    const block = document.createElement("div");
+
+    block.className = "child-mode-block";
+
+    block.innerHTML = `
+        <strong>Post hidden</strong>
+        <div>This post has been hidden due to moderation.</div>
+    `;
+
+    article.style.position = "relative";
+
+    block.style.position = "absolute";
+    block.style.top = "0";
+    block.style.left = "0";
+    block.style.width = "100%";
+    block.style.height = "100%";
+    block.style.zIndex = "9999";
+    block.style.backgroundColor = "white";
+    block.style.display = "flex";
+    block.style.flexDirection = "column";
+    block.style.alignItems = "center";
+    block.style.justifyContent = "flex-start";
+    block.style.textAlign = "center";
+    block.style.padding = "20px";
+    block.style.boxSizing = "border-box";
+
+    article.appendChild(block);
 }
 
 function processTweets() {
@@ -512,7 +572,11 @@ function processTweets() {
 
 			highlightUsername(article, username, true);
 
-            addFlagForm(article, username, post);
+			if (childMode) {
+				blockAllPosts(article);
+			} else {
+	            addFlagForm(article, username, post);
+			}
 
         } else {
 
