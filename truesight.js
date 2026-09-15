@@ -1,6 +1,3 @@
-// Test to see if code is working
-document.body.style.border = "10px solid blue";
-
 // Persistent storage for flagged users
 // To clear users in console while on X use command localStorage.removeItems("flaggedPosts");
 let flaggedPosts = JSON.parse(localStorage.getItem("flaggedPosts") || "[]");
@@ -57,7 +54,7 @@ browser.storage.onChanged.addListener((changes, areaName) => {
 });
 
 // Moderation review/warning once user report hits 100
-const threshold = 100;
+const threshold = 10;
 
 // Post threshold controlled by the menu
 let postThreshold = 5;

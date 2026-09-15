@@ -1,6 +1,7 @@
 
 const slider = document.getElementById("Threshold");
 const valueDisplay = document.getElementById("thresholdValue");
+const thresholdDescription = document.getElementById("thresholdDescription");
 
 const DEFAULT_THRESHOLD = 1;
 
@@ -85,6 +86,38 @@ if (childMode) {
     });
 }
 
+function updateThresholdDescription(threshold) {
+
+    if (!thresholdDescription) {
+        return;
+    }
+
+    if (threshold === 1) {
+        thresholdDescription.textContent =
+            "Maximum Sensitivity.";
+
+    } else if (threshold >= 2 && threshold < 25) {
+        thresholdDescription.textContent =
+            "High Sensitivity.";
+
+    } else if (threshold >= 25 && threshold < 50) {
+        thresholdDescription.textContent =
+            "Moderate-High Sensitivity.";
+
+    } else if (threshold >= 50 && threshold < 100) {
+        thresholdDescription.textContent =
+            "Moderate Sensitivity.";
+
+    } else if (threshold === 100) {
+        thresholdDescription.textContent =
+            "Minimum Sensitivity.";
+
+    } else {
+        thresholdDescription.textContent =
+            "Highlight users once their posts reach this number of flags.";
+    }
+}
+
 // Make sure the HTML elements actually exist
 if (!slider || !valueDisplay) {
     console.error("TrueSight: Could not find Threshold or thresholdValue element.");
@@ -99,6 +132,7 @@ if (!slider || !valueDisplay) {
 
         slider.value = threshold;
         valueDisplay.textContent = threshold;
+        updateThresholdDescription(threshold);
 
         console.log("TrueSight menu: Loaded threshold =", threshold);
     });
@@ -110,6 +144,7 @@ if (!slider || !valueDisplay) {
         const threshold = Number(slider.value);
 
         valueDisplay.textContent = threshold;
+        updateThresholdDescription(threshold);
 
         browser.storage.local.set({
             postThreshold: threshold
@@ -130,4 +165,3 @@ if (!slider || !valueDisplay) {
         });
     });
 }
-
