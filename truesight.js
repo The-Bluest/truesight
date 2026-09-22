@@ -57,7 +57,7 @@ browser.storage.onChanged.addListener((changes, areaName) => {
 });
 
 // Moderation review/warning once user report hits 100
-const threshold = 100;
+const threshold = 2;
 
 // Post threshold controlled by the menu
 let postThreshold = 5;
@@ -215,7 +215,6 @@ function addFlagForm(article, username, post) {
 	const container = document.createElement("div");
 	container.className = "user-flag-container";
 
-
 	// Flag button for pop-up
 	const flagButton = document.createElement("button");
 
@@ -292,43 +291,42 @@ function addFlagForm(article, username, post) {
 
 			form.classList.remove("open");
 
-														  if (existingFlag) {
+			if (existingFlag) {
 
-															  existingFlag.count++; // If flag already exists it only increments the count
+			existingFlag.count++; // If flag already exists it only increments the count
 
-															  existingFlag.reason = reason; // Update reason if changed
+			existingFlag.reason = reason; // Update reason if changed
 
-														  } else {
+			} else {
 
-															  flaggedPosts.push({ // New flag sets count to one
-																  post: post,
-																  username: username,
-																  reason: reason,
-																  count: 1
-															  });
-														  }
+				flaggedPosts.push({ // New flag sets count to one
+				post: post,
+				username: username,
+				reason: reason,
+				count: 1
+				});
+			}
 
-														  savePosts();
-														  flagCount++; // Increment the total flag count
+			savePosts();
+			flagCount++; // Increment the total flag count
 
-														  browser.storage.local.set({ flagCount: flagCount });
+			browser.storage.local.set({ flagCount: flagCount });
 
-														  console.log("TrueSight: Flag count =", flagCount);
-														  console.log("Flagged posts:", flaggedPosts);
+			console.log("TrueSight: Flag count =", flagCount);
+			console.log("Flagged posts:", flaggedPosts);
 
-														  console.log("Flagged posts:", flaggedPosts);
+			console.log("Flagged posts:", flaggedPosts);
 
-														  const status = form.querySelector(".flag-status");
+			const status = form.querySelector(".flag-status");
 
-														  status.textContent = "Flag Saved";
+			status.textContent = "Flag Saved";
 
-														  // Immediately updates and shows users as flagged
-														  article.classList.add("highlighted-user");
+			// Immediately updates and shows users as flagged
+			highlightUsername(article, username, true);
+			//Hide button after flagging for better UI
+			flagButton.style.display = "none";
 
-														  //Hide button after flagging for better UI
-														  flagButton.style.display = "none";
-
-														  flaggedForm(article, username, post);
+		flaggedForm(article, username, post);
 		});
 }
 
@@ -410,29 +408,19 @@ function flaggedForm(article, username, post) {
 
 	article.appendChild(container);
 
-	// Disable/hide moderation buttons in child mode
-	if (childMode) {
-		const agreeButton = container.querySelector(".agree-flag");
-		const disagreeButton = container.querySelector(".disagree-flag");
-		const closeButton = container.querySelector(".close-flagged-form");
-
-		[agreeButton, disagreeButton, closeButton].forEach(button => {
-			if (button) {
-				button.disabled = true;
-				button.style.display = "none";
-			}
-		});
-	}
-
 	// Show moderator warning immediately if qualified
 	updateWarning(container, flaggedPost);
 
 	// Agree button
+	const agreeButton = container.querySelector(".agree-flag");
+
 	container.querySelector(".agree-flag").addEventListener("click", () => {
 
 		flaggedPost.count++;
 
 		savePosts();
+
+		agreeButton.remove();
 
 		container.querySelector(".flagged-user-count").textContent = `Flags: ${flaggedPost.count}`;
 
@@ -444,6 +432,8 @@ function flaggedForm(article, username, post) {
 
 
 	// Disagree button
+	const disagreeButton = container.querySelector(".disagree-flag");
+
 	container.querySelector(".disagree-flag").addEventListener("click", () => {
 
 		flaggedPost.count--;
@@ -469,6 +459,8 @@ function flaggedForm(article, username, post) {
 		// Otherwise save the new count
 		savePosts();
 
+		disagreeButton.remove();
+
 		container.querySelector(".flagged-user-count").textContent = `Flags: ${flaggedPost.count}`;
 
 		container.querySelector(".flagged-user-total").textContent = `Total Flags: ${getTotalFlags(flaggedPost.username)}`;
@@ -492,6 +484,16 @@ function flaggedForm(article, username, post) {
 
 		console.log("container after remove:", container.parentElement);
 	});
+
+		// Disable/hide moderation buttons in child mode
+	if (childMode) {
+		[agreeButton, disagreeButton, closeButton].forEach(button => {
+			if (button) {
+				button.disabled = true;
+				button.style.display = "none";
+			}
+		});
+	}
 }
 
 function postFlagged(post) {

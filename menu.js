@@ -3,7 +3,7 @@ const slider = document.getElementById("Threshold");
 const valueDisplay = document.getElementById("thresholdValue");
 const thresholdDescription = document.getElementById("thresholdDescription");
 
-const DEFAULT_THRESHOLD = 1;
+const DEFAULT_THRESHOLD = 5;
 
 function updateProfileImage(flagCount) {
 
