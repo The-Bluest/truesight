@@ -1,11 +1,14 @@
 .highlighted-user {
     padding-left: 10px !important;
     border-radius: 6px;
-    color: #ff0000 !important;
-    font-weight: bold;
 }
 
-.highlighted-user * {
+.highlighted-username {
+    color: red !important; 
+    font-weight: bold; 
+}
+
+.highlighted-username * {
     color: inherit !important;
 }
 
