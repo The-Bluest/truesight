@@ -15,6 +15,151 @@ function savePosts() {
 	localStorage.setItem('flaggedPosts', JSON.stringify(flaggedPosts));
 }
 
+async function exportTrueSightData() {
+
+    try {
+
+        // Getstored in localStorage
+        const storedFlaggedPosts =
+            JSON.parse(
+                localStorage.getItem("flaggedPosts") || "[]"
+            );
+
+
+        // Getstored in Firefox  storage  no bnlock pls
+        const browserStorage =
+            await browser.storage.local.get(null);
+
+
+        // Build export object
+        const exportData = {
+
+            exportedAt: new Date().toISOString(),
+
+            source: "TrueSight",
+
+            localStorage: {
+
+                flaggedPosts: storedFlaggedPosts
+
+            },
+
+            firefoxStorage: browserStorage
+
+        };
+
+
+        // Convert 2 JSON
+        const json =
+            JSON.stringify(
+                exportData,
+                null,
+                4
+            );
+
+
+        // Create downloadable file
+        const blob =
+            new Blob(
+                [json],
+                {
+                    type: "application/json"
+                }
+            );
+
+
+        const url =
+            URL.createObjectURL(blob);
+
+
+        const link =
+            document.createElement("a");
+
+
+        link.href = url;
+
+
+        const date =
+            new Date()
+                .toISOString()
+                .replace(/[:.]/g, "-");
+
+
+        link.download =
+            `truesight-export-${date}.json`;
+
+
+        document.body.appendChild(link);
+
+
+        link.click();
+
+
+        link.remove();
+
+
+        URL.revokeObjectURL(url);
+
+
+        console.log(
+            "TrueSight:  exported successfully."
+        );
+
+
+    } catch (error) {
+
+        console.error(
+            "TrueSight: exprtfail:",
+            error
+        );
+
+        alert(
+            "TrueSight: Failed to export dat."
+        );
+
+    }
+
+}
+
+
+function createExportButton() {
+
+    // Don't create it twice
+    if (
+        document.querySelector(
+            "#truesight-export-button"
+        )
+    ) {
+        return;
+    }
+
+
+    const button =
+        document.createElement("button");
+
+
+    button.id =
+        "truesight-export-button";
+
+
+    button.textContent =
+        "Export DEBUG";
+
+
+    button.title =
+        "Export TrueSight data for demonstration";
+
+
+    button.addEventListener(
+        "click",
+        exportTrueSightData
+    );
+
+
+    document.body.appendChild(button);
+
+}
+
 // Child mode setting
 let childMode = false;
 
@@ -608,7 +753,7 @@ function highlightUsername(article, username, highlight) {
 
 // Initial scan
 //processTweets();
-
+createExportButton();
 // Watch for new tweets appearing while scrolling
 const observer = new MutationObserver(() => {
 

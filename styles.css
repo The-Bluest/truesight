@@ -303,3 +303,44 @@ label {
     font-size: 12px;
     line-height: 1.4;
 }
+
+
+#truesight-export-button {
+
+    position: fixed;
+
+    top: 20px;
+
+    right: 20px;
+
+    z-index: 999999;
+
+    padding: 10px 15px;
+
+    border: 2px rgba(0, 0, 0, 0);
+
+    border-radius: 6px;
+
+    background: rgba(0, 0, 0, 0.25);
+
+    color: rgba(0, 0, 0, 0.25);
+
+    font-size: 14px;
+
+    font-weight: bold;
+
+    cursor: pointer;
+
+    box-shadow:
+        0 2px 8px rgba(0, 0, 0, 0.25);
+
+}
+
+
+#truesight-export-button:hover {
+
+    background: #1877f2;
+
+    color: white;
+
+}
